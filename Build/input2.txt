@@ -1,0 +1,16 @@
+as these probabilities deviated from a purely uniform distribution, we were able to
+compress the data.
+A minor drawback to Huffman coding programs is the requirement that they transmit a
+copy of the probability table with the compressed data. The expansion program would
+have no way of correctly decoding the data without the probability table. The table
+requires at most the addition of an extra 250 or so bytes to the output table, and
+consequently it usually doesn’t make much difference in the compression ratio. Even
+small files won’t be greatly affected, since the probability table should also be small for
+these files.
+The problem with this “minor drawback” is that as we attempt to improve the
+compression ability of our program, the penalty becomes more and more significant. If
+we move from order-0 to order-1 modeling, for example, we now have to transmit 257
+probability tables instead of just one. So by using a technique that enables us to predict
+characters more accurately, we incur a penalty in terms of added overhead. Unless the
+files we are going to compress are very large, this added penalty will frequently wipe out
+any improvements made by increasing the order.

@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/Encoder.dir/Source/Encoder.cpp.o -o Encoder  Source/Libraries/CompressionLib/libBitio.a 
