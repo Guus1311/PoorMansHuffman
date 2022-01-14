@@ -4,6 +4,7 @@ primarily compiled on x86_64 Manjaro linux
 
 To compile:
 (in Build folder)
+
 cmake ..
 
 make
