@@ -4,6 +4,7 @@
 #include<string>
 #include<bitset>
 #include<algorithm>
+#include<fstream>
 //#include"Libraries/CompressionLib/huffman.h"
 
 //huffman algorithm
@@ -17,28 +18,34 @@ int parent = -1;          //location in vector of parent node
 bool used;        //whether node has been used
 long code;
 };
+//tree 
  std::vector<node> nodes;
+ //used to prepare new nodes for insertion in vector
     node dummynode;
 
 int main(int argc, char* argv[]){
+  //variables
+  //bitfile
 bitFILE* inputbinary = bitIO_open("CompressedData.bin", BIT_IO_R);
+//string text comes in
 std::string text;
-int textlength;
-int nodesamount;
-
-bitIO_read(inputbinary,&nodesamount,sizeof(nodesamount),8);
-
+//same usage as in encoder
+int original_size;
+//get orginal size
+bitIO_read(inputbinary,&original_size,sizeof(original_size),8);
+//make nodes 0 long
 nodes.resize(0);
-for(int i = 0; i < nodesamount; i++){
+//get character and counts for all leaf nodes
+for(int i = 0; i < original_size; i++){
 bitIO_read(inputbinary,&dummynode.character, sizeof(dummynode.character),8);
 bitIO_read(inputbinary,&dummynode.count, sizeof(dummynode.count),8);
 nodes.push_back(dummynode);
 }
-
-for(int i = 0; i < nodesamount; i++){
+//print leaf nodes
+for(int i = 0; i < original_size; i++){
     std::cout << nodes.at(i).character << " " << nodes.at(i).count << std::endl;
 }
-//build tree again
+//build tree again(copided from encoder so little more detailed comments there)
 //build tree (character for a 'parent node' is always ASCII code 0 which will be used later to determine if we have reached the end of the tree when making the codes)
      int lowest1, lowest2; //addresses of lowest values
     //set some values just to be sure
@@ -48,13 +55,13 @@ for(int i = 0; i < nodesamount; i++){
          
      }
       //tree build loop
-    while(nodes.size() < (nodesamount*2)-1){
+    while(nodes.size() < (original_size*2)-1){
         
         //identify two lowest weights
         //set begin values
        lowest1 = nodes.size() -1;
       lowest2 = nodes.size() - 1;
-      //actually find lowest value
+      //find lowest value
         for(int i = nodes.size() - 1; i > -1; i--){
             if(nodes.at(i).used == false){
          if(nodes.at(i).count <= nodes.at(lowest1).count){
@@ -97,31 +104,39 @@ for(int i = 0; i < nodesamount; i++){
        nodes.at(lowest2).used = true;
     }
     //output tree for debug
-
      for(int i = 0; i < nodes.size(); i++){
     std::cout << "node: "<< i << " " << nodes.at(i).character << " " << nodes.at(i).count << " " << nodes.at(i).parent << " " << nodes.at(i).child0 << " " << nodes.at(i).child1 <<" " << nodes.at(i).used  << " " << std::bitset<32>(nodes.at(i).code) << std::endl;
     }
+
 //input data and make it readable
+//set int to 2 so we know if it doesnt read at all
 int bit = 2;
 //ingest data
+//string that holds the read binary
 std::string binarystring;
+//text file
 std::string characterstring;
+//default just in case
 characterstring.resize(0);
+//for conversion and appending bit
 char bitcharacter;
 while(bitIO_feof(inputbinary) == 0){
+  //read bit, convert then append it
   bitIO_read(inputbinary,&bit, sizeof(bit), 1);
   bitcharacter = '0' + bit;
   binarystring.append(1,bitcharacter);
 }
+//file is read so we close it
 bitIO_close(inputbinary);
 //output for debug
 std::cout << binarystring << std::endl;
+//reverse binarystring because it gets read backwards or something(endianness maybe?) for now this fixes it
 std::reverse(binarystring.begin(), binarystring.end());
 std::cout << binarystring << std::endl;
 //convert to characters
 int CurrentNode = nodes.size() - 1;
 for(int i = 0; i < binarystring.size();i++){
-  
+  //we have the tree so we just walk down it the duraction fo the string
 if(binarystring.at(i) == '1'){
  // std::cout << "1";
   CurrentNode = nodes.at(CurrentNode).child1;
@@ -130,14 +145,27 @@ else if(binarystring.at(i) == '0'){
  // std::cout << "0";
   CurrentNode = nodes.at(CurrentNode).child0;
 }
+//check if we are on a leaf node and if so append the leaf's character to our text string
 if(nodes.at(CurrentNode).character != (char)7){
     characterstring.append(1,nodes.at(CurrentNode).character);
     CurrentNode = nodes.size() - 1;
   }
 }
-
+//because we reverse the binary our text is reversed so we reverse it back
 std::reverse(characterstring.begin(), characterstring.end());
-std::cout << characterstring << std::endl;
+
+//output to text file
+//be able to take in filename but have backup
+std::string TextFilename = "TextOutput.txt";
+if(argv[1]!=NULL){
+  TextFilename = argv[1];
+}
+//output
+std::ofstream TextOutput(TextFilename, std::ofstream::out);
+if(TextOutput.is_open()){
+TextOutput << characterstring;
+}
+TextOutput.close();
 std::cin.get();
     return 0;
 }
