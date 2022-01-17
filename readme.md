@@ -1,4 +1,4 @@
-Huffman coding program for school project by Guus Frijlink
+Huffman coding program for school project about data compression by Guus Frijlink
 
 primarily compiled on x86_64 Manjaro linux(only tested on local machine)
 
