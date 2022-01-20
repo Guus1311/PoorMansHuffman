@@ -7,6 +7,12 @@
 #include<fstream>
 //#include"Libraries/CompressionLib/huffman.h"
 
+//variables
+
+std::string TextFilename = "TextOutput.txt";
+bool DebugMode = false;
+
+
 //huffman algorithm
 //nodes in the tree
 struct node{
@@ -23,7 +29,41 @@ long code;
  //used to prepare new nodes for insertion in vector
     node dummynode;
 
+
+    //processing of commandline arguments
+    void ProcessArguments(int argc, char* argv[]){
+      //if only one argument set argument as output file
+      if(argc == 2){
+        TextFilename = argv[1];
+      }
+       //special conditions
+      for(int i = 0; i < argc; i++){
+        //options
+        if(argv[i][0] == '-'){
+          //debug mode
+          if(argv[i][1] == 'd'){
+          std::cout << "Debug\n";
+          DebugMode = true;
+          }
+          //set output file
+          if(argv[i][1] == 'o'){
+           TextFilename = argv[i+1];
+          }
+          //help
+        if(argv[i][1] == 'h'){
+          std::cout << "Help\n";
+          std::cout << "Usage ./Decoder[options] -o [output]\n./Decoder [output]\n./Decoder\n";
+          }
+        }
+        
+       }
+      
+    }
+
 int main(int argc, char* argv[]){
+  //process commandline arguments
+  ProcessArguments(argc,  argv);
+
   //variables
   //bitfile
 bitFILE* inputbinary = bitIO_open("CompressedData.bin", BIT_IO_R);
@@ -42,8 +82,10 @@ bitIO_read(inputbinary,&dummynode.count, sizeof(dummynode.count),8);
 nodes.push_back(dummynode);
 }
 //print leaf nodes
+if(DebugMode == true){
 for(int i = 0; i < original_size; i++){
     std::cout << nodes.at(i).character << " " << nodes.at(i).count << std::endl;
+}
 }
 //build tree again(copided from encoder so little more detailed comments there)
 //build tree (character for a 'parent node' is always ASCII code 0 which will be used later to determine if we have reached the end of the tree when making the codes)
@@ -104,8 +146,10 @@ for(int i = 0; i < original_size; i++){
        nodes.at(lowest2).used = true;
     }
     //output tree for debug
+    if(DebugMode == true){
      for(int i = 0; i < nodes.size(); i++){
     std::cout << "node: "<< i << " " << nodes.at(i).character << " " << nodes.at(i).count << " " << nodes.at(i).parent << " " << nodes.at(i).child0 << " " << nodes.at(i).child1 <<" " << nodes.at(i).used  << " " << std::bitset<32>(nodes.at(i).code) << std::endl;
+    }
     }
 
 //input data and make it readable
@@ -129,10 +173,12 @@ while(bitIO_feof(inputbinary) == 0){
 //file is read so we close it
 bitIO_close(inputbinary);
 //output for debug
-std::cout << binarystring << std::endl;
+
 //reverse binarystring because it gets read backwards or something(endianness maybe?) for now this fixes it
 std::reverse(binarystring.begin(), binarystring.end());
-std::cout << binarystring << std::endl;
+if(DebugMode == true){
+  std::cout << binarystring << std::endl;
+}
 //convert to characters
 int CurrentNode = nodes.size() - 1;
 for(int i = 0; i < binarystring.size();i++){
@@ -156,10 +202,7 @@ std::reverse(characterstring.begin(), characterstring.end());
 
 //output to text file
 //be able to take in filename but have backup
-std::string TextFilename = "TextOutput.txt";
-if(argv[1]!=NULL){
-  TextFilename = argv[1];
-}
+
 //output
 std::ofstream TextOutput(TextFilename, std::ofstream::out);
 if(TextOutput.is_open()){

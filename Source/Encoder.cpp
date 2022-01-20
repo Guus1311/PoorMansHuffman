@@ -63,19 +63,47 @@ Generatecode(nodes.at(parent).child0);
 Generatecode(nodes.at(parent).child1);
 }
 
+std::string TextFilename = "input.txt";
+bool DebugMode = false;
+
+void ProcessArguments(int argc, char* argv[]){
+      //if only one argument set argument as output file
+      if(argc == 2){
+        TextFilename = argv[1];
+      }
+       //special conditions
+      for(int i = 0; i < argc; i++){
+        //options
+        if(argv[i][0] == '-'){
+          //debug mode
+          if(argv[i][1] == 'd'){
+          std::cout << "Debug\n";
+          DebugMode = true;
+          }
+          //set output file
+          if(argv[i][1] == 'i'){
+           TextFilename = argv[i+1];
+          }
+          //help
+        if(argv[i][1] == 'h'){
+          std::cout << "Help\n";
+          std::cout << "Usage ./Encoder[options] -i [input]\n./Encoder [input]\n./Encoder\n";
+          }
+        } else{TextFilename = argv[i];}
+        
+       }
+      
+    }
 
 //program usage: ./Encoder [Filename]
 int main(int argc, char* argv[]){
     //incorrect usage
-    if(argc != 2){
-    std::cout << "incorrect usage\nusage: Encoder [Filename]\n";
-    return -1;
-    }
+    
     //for debug purposes now commented
   //PrintArguments(argc, argv);
-
+    ProcessArguments(argc, argv);
     //ingest file
-    std::ifstream input(argv[1], std::ifstream::in); 
+    std::ifstream input(TextFilename, std::ifstream::in); 
    if(input.is_open()){
        
         //get file length
@@ -90,7 +118,9 @@ int main(int argc, char* argv[]){
        std::string InputData = Text;
        //delete so no memory leak
        delete[] Text;
+       if(DebugMode == true){
        std::cout << InputData << std::endl;
+       }
         //close filestream
        input.close();
 
@@ -128,11 +158,13 @@ int main(int argc, char* argv[]){
    
    
  //print sorted characters with counts(the strangeness at the end with the test file is just carriage return being printed)
+ if(DebugMode == true){
     for(int i = 0; i < nodes.size(); i++){
     std::cout << nodes.at(i).character << " " << nodes.at(i).count << std::endl;
     }
    //display number of leaf nodes
     std::cout << "no. of nodes "<<nodes.size() << std::endl;
+ }
 
    //get amount of leaf nodes for file writing purposes later
     int original_size = nodes.size();
@@ -198,17 +230,21 @@ int main(int argc, char* argv[]){
        nodes.at(lowest1).used = true;
        nodes.at(lowest2).used = true;
     }
+    if(DebugMode == true){
     //output amount of nodes after tree generation
     std::cout << nodes.size() << std::endl;
    //output amount of characters in string
    std::cout << InputData.size() << std::endl;
+    }
     //generate codes(walk down tree)
     //default just in case
     nodes.at(nodes.size() - 1).bits = 0;
     //begin code generation at root of tree
     Generatecode(nodes.size() - 1);
     //output for debug purposes
-     //PrintTreeDebugData(nodes);
+    if(DebugMode == true){
+     PrintTreeDebugData(nodes);
+    }
 
     //output data to file
     //create bitfile
