@@ -1,7 +1,0 @@
-/drive2/programs/c++/Huffman/Build/CMakeFiles/Decoder.dir
-/drive2/programs/c++/Huffman/Build/CMakeFiles/Encoder.dir
-/drive2/programs/c++/Huffman/Build/CMakeFiles/edit_cache.dir
-/drive2/programs/c++/Huffman/Build/CMakeFiles/rebuild_cache.dir
-/drive2/programs/c++/Huffman/Build/Source/Libraries/CompressionLib/CMakeFiles/Bitio.dir
-/drive2/programs/c++/Huffman/Build/Source/Libraries/CompressionLib/CMakeFiles/edit_cache.dir
-/drive2/programs/c++/Huffman/Build/Source/Libraries/CompressionLib/CMakeFiles/rebuild_cache.dir

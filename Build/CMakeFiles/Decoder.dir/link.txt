@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/Decoder.dir/Source/Decoder.cpp.o -o Decoder  Source/Libraries/CompressionLib/libBitio.a 
